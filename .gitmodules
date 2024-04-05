@@ -1,0 +1,3 @@
+[submodule "libs/list-lib"]
+	path = libs/list-lib
+	url = git@github.com:Iprime111/list-lib.git
