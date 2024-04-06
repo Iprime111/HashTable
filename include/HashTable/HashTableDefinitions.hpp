@@ -6,6 +6,11 @@
 #include <LinkedList.hpp>
 
 #include "ErrorCode.hpp"
+#include "LinkedListDefinitions.hpp"
+
+#define HashTableTemplate \
+    template <typename Key, typename Value, HashFunction <Key *> Hash, LinkedList::Comparator <Pair <Key, Value> *> ElementComparator>
+
 namespace HashTableLib {
     template <typename Key, typename Value>
     struct Pair {
@@ -15,29 +20,28 @@ namespace HashTableLib {
     
     template <typename KeyPointer>
     using HashFunction = uint32_t (*) (KeyPointer key);
-    
-    template <typename Key, typename Value, HashFunction <Key *> Hash>
+
+    HashTableTemplate
     struct HashTable {
         size_t capacity = 0;
     
-        LinkedList::List <Pair <Key, Value>> *table = nullptr;
+        LinkedList::List <Pair <Key, Value>, ElementComparator> *table = nullptr;
     
         ErrorCode error = ErrorCode::NO_ERRORS;
     };
     
-    template <typename Key, typename Value, HashFunction <Key *> Hash>
-    ErrorCode AddElement        (HashTable <Key, Value, Hash> *table, Pair <Key, Value> *newEntry);
-    
-    template <typename Key, typename Value, HashFunction <Key *> Hash>
-    ErrorCode FindElement       (HashTable <Key, Value, Hash> *table, Key *elementKey, Value **element);
-    
-    template <typename Key, typename Value, HashFunction <Key> Hash>
-    ErrorCode InitHashTable     (HashTable <Key, Value, Hash> *table, size_t capacity);
-    
-    template <typename Key, typename Value, HashFunction <Key> Hash>
-    ErrorCode DestroyHashTable  (HashTable <Key, Value, Hash> *table);
-    
-    template <typename Key, typename Value, HashFunction <Key> Hash>
-    ErrorCode HashTableVerifier (HashTable <Key, Value, Hash> *table);
+    HashTableTemplate
+    ErrorCode AddElement        (HashTable <Key, Value, Hash, ElementComparator> *table, Pair <Key, Value> *newEntry);
+    HashTableTemplate
+    ErrorCode FindElement       (HashTable <Key, Value, Hash, ElementComparator> *table, Key *elementKey, Value **element);
+    HashTableTemplate
+    ErrorCode InitHashTable     (HashTable <Key, Value, Hash, ElementComparator> *table, size_t capacity);
+    HashTableTemplate
+    ErrorCode DestroyHashTable  (HashTable <Key, Value, Hash, ElementComparator> *table);
+    HashTableTemplate
+    ErrorCode HashTableVerifier (HashTable <Key, Value, Hash, ElementComparator> *table);
 }
+
+#undef HashTableTemplate
+
 #endif

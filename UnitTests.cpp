@@ -16,7 +16,6 @@ inline uint32_t DefaultHash (int *key) {
     return (uint32_t) *key;
 }
 
-template <>
 inline int ListElementComparator (HashTableLib::Pair <int, int> *firstElement, HashTableLib::Pair <int, int> *secondElement) {
     assert (firstElement);
     assert (secondElement);
@@ -25,7 +24,7 @@ inline int ListElementComparator (HashTableLib::Pair <int, int> *firstElement, H
 }
 
 TEST (InitTest, HashTableTests) {
-    HashTableLib::HashTable <int, int, DefaultHash> hashTable = {};
+    HashTableLib::HashTable <int, int, DefaultHash, ListElementComparator> hashTable = {};
     
     EXPECT_EQ (HashTableLib::InitHashTable (&hashTable, DEFAULT_CAPACITY), HashTableLib::ErrorCode::NO_ERRORS);
 
@@ -37,7 +36,7 @@ TEST (InitTest, HashTableTests) {
 }
 
 TEST (FillTest, HashTableTests) {
-    HashTableLib::HashTable <int, int, DefaultHash> hashTable = {};
+    HashTableLib::HashTable <int, int, DefaultHash, ListElementComparator> hashTable = {};
     
     EXPECT_EQ (HashTableLib::InitHashTable (&hashTable, DEFAULT_CAPACITY), HashTableLib::ErrorCode::NO_ERRORS);
 

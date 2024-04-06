@@ -9,6 +9,9 @@
 #include "HashTable/HashTableConfig.hpp"
 #include "LinkedListDefinitions.hpp"
 
+#define HashTableTemplate \
+    template <typename Key, typename Value, HashFunction <Key *> Hash, LinkedList::Comparator <Pair <Key, Value> *> ElementComparator>
+
 #define WriteError(TABLE, ERROR)  (TABLE)->error = (ErrorCode) ((int) (TABLE)->error | (int) ERROR)
 #define ReturnError(TABLE, ERROR)   \
     do {                            \
@@ -41,13 +44,13 @@
 
 namespace HashTableLib {
 
-    template <typename Key, typename Value, HashFunction <Key *> Hash>
-    ErrorCode AddElement (HashTable <Key, Value, Hash> *table, Pair <Key, Value> *newEntry) {
+    HashTableTemplate
+    ErrorCode AddElement (HashTable <Key, Value, Hash, ElementComparator> *table, Pair <Key, Value> *newEntry) {
         assert (newEntry);
         VerifyHashTable (table);
     
         uint32_t listIndex = Hash (&newEntry->key) % (uint32_t) table->capacity;
-        LinkedList::List <Pair <Key, Value>> *list = &table->table [listIndex];
+        LinkedList::List <Pair <Key, Value>, ElementComparator> *list = &table->table [listIndex];
     
         ssize_t newIndex = 0;
         CheckError (table, LinkedList::InsertAfter (list, list->prev [0], &newIndex, newEntry) == LinkedList::NO_LIST_ERRORS,
@@ -56,14 +59,14 @@ namespace HashTableLib {
         return ErrorCode::NO_ERRORS;
     }
     
-    template <typename Key, typename Value, HashFunction <Key *> Hash>
-    ErrorCode FindElement (HashTable <Key, Value, Hash> *table, Key *elementKey, Value **element) {
+    HashTableTemplate
+    ErrorCode FindElement (HashTable <Key, Value, Hash, ElementComparator> *table, Key *elementKey, Value **element) {
         assert (elementKey);
         assert (element);
         VerifyHashTable (table);
     
         uint32_t listIndex = Hash (elementKey) % (uint32_t) table->capacity;
-        LinkedList::List <Pair <Key, Value>> *list = &table->table [listIndex];
+        LinkedList::List <Pair <Key, Value>, ElementComparator> *list = &table->table [listIndex];
         
         Pair <Key, Value> searchPattern = {.key = *elementKey};
         ssize_t elementIndex = -1;
@@ -81,8 +84,8 @@ namespace HashTableLib {
     
     //TODO DumpHashTable ()
     
-    template <typename Key, typename Value, HashFunction <Key *> Hash>
-    ErrorCode HashTableVerifier (HashTable <Key, Value, Hash> *table) {
+    HashTableTemplate
+    ErrorCode HashTableVerifier (HashTable <Key, Value, Hash, ElementComparator> *table) {
         if (!table)
             return ErrorCode::NULL_POINTER;
     
@@ -95,13 +98,14 @@ namespace HashTableLib {
     }
     
     
-    template <typename Key, typename Value, HashFunction <Key *> Hash>
-    ErrorCode InitHashTable (HashTable <Key, Value, Hash> *table, size_t capacity) {
+    HashTableTemplate
+    ErrorCode InitHashTable (HashTable <Key, Value, Hash, ElementComparator> *table, size_t capacity) {
         assert (table);
     
         table->capacity = capacity;
         
-        table->table = (LinkedList::List <Pair <Key, Value>> *) calloc (sizeof (LinkedList::List <Pair <Key, Value>>), capacity); 
+        table->table = (LinkedList::List <Pair <Key, Value>, ElementComparator> *) 
+            calloc (sizeof (LinkedList::List <Pair <Key, Value>, ElementComparator>), capacity); 
     
         if (!table->table)
             return ErrorCode::ALLOCATION_ERROR;
@@ -116,8 +120,8 @@ namespace HashTableLib {
         return ErrorCode::NO_ERRORS;
     }
     
-    template <typename Key, typename Value, HashFunction <Key *> Hash>
-    ErrorCode DestroyHashTable (HashTable <Key, Value, Hash> *table) {
+    HashTableTemplate
+    ErrorCode DestroyHashTable (HashTable <Key, Value, Hash, ElementComparator> *table) {
         if (!table)
             return ErrorCode::NULL_POINTER;
     
@@ -132,6 +136,8 @@ namespace HashTableLib {
         return ErrorCode::NO_ERRORS;
     }
 }
+
+#undef HashTableTemplate
 #undef WriteError
 #undef ReturnError
 #undef CheckError
