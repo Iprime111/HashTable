@@ -1,12 +1,12 @@
 #ifndef HASH_TABLE_TEMPLATES_HPP_
 #define HASH_TABLE_TEMPLATES_HPP_
 
+#include <LinkedList.hpp>
 #include <cstdint>
 
-#include "HashTable/HashTable.hpp"
+#include "HashTable/HashTableDefinitions.hpp"
 #include "ErrorCode.hpp"
 #include "HashTable/HashTableConfig.hpp"
-#include "LinkedList.hpp"
 #include "LinkedListDefinitions.hpp"
 
 #define WriteError(TABLE, ERROR)  (TABLE)->error = (ErrorCode) ((int) (TABLE)->error | (int) ERROR)
@@ -40,35 +40,44 @@
     )
 
 
-template <typename Key, typename Value, HashFunction <Key> Hash>
-ErrorCode AddElement (HashTable <Key, Value, Hash> *table, Value *newEntry, Key *newKey) {
+template <typename Key, typename Value, HashFunction <Key *> Hash>
+ErrorCode AddElement (HashTable <Key, Value, Hash> *table, Pair <Key, Value> *newEntry) {
     VerifyHashTable (table);
 
-    uint32_t elementIndex = Hash (newKey) % table->capacity;
-    LinkedList::List <Value> *list = &table->table [elementIndex];
+    uint32_t listIndex = Hash (&newEntry->key) % (uint32_t) table->capacity;
+    LinkedList::List <Pair <Key, Value>> *list = &table->table [listIndex];
 
     ssize_t newIndex = 0;
-    CheckError (table, LinkedList::InsertAfter (list, list->prev [0], &newIndex, newEntry), ErrorCode::LIST_ERROR); // insert after tail
+    CheckError (table, LinkedList::InsertAfter (list, list->prev [0], &newIndex, newEntry) == LinkedList::NO_LIST_ERRORS,
+                ErrorCode::LIST_ERROR); // insert after tail
 
     return ErrorCode::NO_ERRORS;
 }
 
-template <typename Key, typename Value, HashFunction <Key> Hash>
-ErrorCode FindElement (HashTable <Key, Value, Hash> *table, Key *elementKey) {
+template <typename Key, typename Value, HashFunction <Key *> Hash>
+ErrorCode FindElement (HashTable <Key, Value, Hash> *table, Key *elementKey, Value **element) {
     VerifyHashTable (table);
 
-    uint32_t elementIndex = Hash (elementKey) % table->capacity;
-    LinkedList::List <Value> *list = &table->table [elementIndex];
+    uint32_t listIndex = Hash (elementKey) % (uint32_t) table->capacity;
+    LinkedList::List <Pair <Key, Value>> *list = &table->table [listIndex];
+    
+    Pair <Key, Value> searchPattern = {.key = *elementKey};
+    ssize_t elementIndex = -1;
 
-    //TODO implement
+    LinkedList::FindValue (list, &searchPattern, &elementIndex);
 
+    if (elementIndex <= 0) {
+        (*element) = nullptr;
+        return ErrorCode::NO_ERRORS;
+    }
+
+    (*element) = &(list->data [elementIndex].value);
     return ErrorCode::NO_ERRORS;
 }
 
 //TODO DumpHashTable ()
 
-
-template <typename Key, typename Value, HashFunction <Key> Hash>
+template <typename Key, typename Value, HashFunction <Key *> Hash>
 ErrorCode HashTableVerifier (HashTable <Key, Value, Hash> *table) {
     if (!table)
         return ErrorCode::NULL_POINTER;
@@ -82,13 +91,13 @@ ErrorCode HashTableVerifier (HashTable <Key, Value, Hash> *table) {
 }
 
 
-template <typename Key, typename Value, HashFunction <Key> Hash>
+template <typename Key, typename Value, HashFunction <Key *> Hash>
 ErrorCode InitHashTable (HashTable <Key, Value, Hash> *table, size_t capacity) {
     assert (table);
 
     table->capacity = capacity;
     
-    table->table = (LinkedList::List <Value> *) calloc (sizeof (LinkedList::List <Value>), capacity); 
+    table->table = (LinkedList::List <Pair <Key, Value>> *) calloc (sizeof (LinkedList::List <Pair <Key, Value>>), capacity); 
 
     if (!table->table)
         return ErrorCode::ALLOCATION_ERROR;
@@ -103,7 +112,7 @@ ErrorCode InitHashTable (HashTable <Key, Value, Hash> *table, size_t capacity) {
     return ErrorCode::NO_ERRORS;
 }
 
-template <typename Key, typename Value, HashFunction <Key> Hash>
+template <typename Key, typename Value, HashFunction <Key *> Hash>
 ErrorCode DestroyHashTable (HashTable <Key, Value, Hash> *table) {
     if (!table)
         return ErrorCode::NULL_POINTER;
@@ -112,7 +121,6 @@ ErrorCode DestroyHashTable (HashTable <Key, Value, Hash> *table) {
         LinkedList::DestroyList (&table->table [listIndex]);
     }
 
-    memset (&table->table, 0, sizeof (LinkedList::List <Value>) * table->capacity);
     free (table->table);
     
     table->error = ErrorCode::NULL_POINTER;
@@ -123,7 +131,7 @@ ErrorCode DestroyHashTable (HashTable <Key, Value, Hash> *table) {
 #undef WriteError
 #undef ReturnError
 #undef CheckError
-#undef NDEBUG
+#undef ON_DEBUG
 #undef VerifyHashTable
 
 #endif
