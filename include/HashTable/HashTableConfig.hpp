@@ -3,6 +3,8 @@
 
 #include <cstddef>
 
-const size_t EXPECTED_LOAD_FACTOR = 5;
+namespace  HashTableLib {
+    const size_t EXPECTED_LOAD_FACTOR = 5;
+}
 
 #endif
