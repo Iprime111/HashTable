@@ -49,12 +49,13 @@ namespace HashTableLib {
         assert (newEntry);
         VerifyHashTable (table);
     
-        uint32_t listIndex = Hash (&newEntry->key) % (uint32_t) table->capacity;
+        uint32_t listIndex = GetListIndex (table, &newEntry->key);
         LinkedList::List <Pair <Key, Value>, ElementComparator> *list = &table->table [listIndex];
     
         ssize_t newIndex = 0;
-        CheckError (table, LinkedList::InsertAfter (list, list->prev [0], &newIndex, newEntry) == LinkedList::NO_LIST_ERRORS,
-                    ErrorCode::LIST_ERROR); // insert after tail
+        LinkedList::ListErrorCode insertErrorCode = LinkedList::InsertAfter (list, list->prev [0], &newIndex, newEntry);
+
+        CheckError (table, insertErrorCode == LinkedList::NO_LIST_ERRORS, ErrorCode::LIST_ERROR); // insert after tail
     
         return ErrorCode::NO_ERRORS;
     }
@@ -65,7 +66,7 @@ namespace HashTableLib {
         assert (element);
         VerifyHashTable (table);
     
-        uint32_t listIndex = Hash (elementKey) % (uint32_t) table->capacity;
+        uint32_t listIndex = GetListIndex (table, elementKey);
         LinkedList::List <Pair <Key, Value>, ElementComparator> *list = &table->table [listIndex];
         
         Pair <Key, Value> searchPattern = {.key = *elementKey};
@@ -81,8 +82,6 @@ namespace HashTableLib {
         (*element) = &(list->data [elementIndex].value);
         return ErrorCode::NO_ERRORS;
     }
-    
-    //TODO DumpHashTable ()
     
     HashTableTemplate
     ErrorCode HashTableVerifier (HashTable <Key, Value, Hash, ElementComparator> *table) {
@@ -135,6 +134,12 @@ namespace HashTableLib {
     
         return ErrorCode::NO_ERRORS;
     }
+
+    HashTableTemplate
+    inline uint32_t GetListIndex (HashTable <Key, Value, Hash, ElementComparator> *table, Key *elementKey) {
+        return Hash (elementKey) % (uint32_t) table->capacity;
+    }
+
 }
 
 #undef HashTableTemplate

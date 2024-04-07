@@ -31,15 +31,17 @@ namespace HashTableLib {
     };
     
     HashTableTemplate
-    ErrorCode AddElement        (HashTable <Key, Value, Hash, ElementComparator> *table, Pair <Key, Value> *newEntry);
+    ErrorCode AddElement         (HashTable <Key, Value, Hash, ElementComparator> *table, Pair <Key, Value> *newEntry);
     HashTableTemplate
-    ErrorCode FindElement       (HashTable <Key, Value, Hash, ElementComparator> *table, Key *elementKey, Value **element);
+    ErrorCode FindElement        (HashTable <Key, Value, Hash, ElementComparator> *table, Key *elementKey, Value **element);
     HashTableTemplate
-    ErrorCode InitHashTable     (HashTable <Key, Value, Hash, ElementComparator> *table, size_t capacity);
+    ErrorCode InitHashTable      (HashTable <Key, Value, Hash, ElementComparator> *table, size_t capacity);
     HashTableTemplate
-    ErrorCode DestroyHashTable  (HashTable <Key, Value, Hash, ElementComparator> *table);
+    ErrorCode DestroyHashTable   (HashTable <Key, Value, Hash, ElementComparator> *table);
     HashTableTemplate
-    ErrorCode HashTableVerifier (HashTable <Key, Value, Hash, ElementComparator> *table);
+    ErrorCode HashTableVerifier  (HashTable <Key, Value, Hash, ElementComparator> *table);
+    HashTableTemplate
+    inline uint32_t GetListIndex (HashTable <Key, Value, Hash, ElementComparator> *table, Key *elementKey);
 }
 
 #undef HashTableTemplate
