@@ -3,5 +3,6 @@
 
 #include "HashTableDefinitions.hpp"
 #include "HashTableTemplates.hpp"
+#include "HashTableDump.hpp"
 
 #endif

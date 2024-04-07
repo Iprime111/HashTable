@@ -1,3 +1,6 @@
 [submodule "libs/list-lib"]
 	path = libs/list-lib
 	url = git@github.com:Iprime111/list-lib.git
+[submodule "libs/ColorConsole"]
+	path = libs/ColorConsole
+	url = git@github.com:Iprime111/ColorConsole.git
