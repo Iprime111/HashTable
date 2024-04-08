@@ -2,9 +2,9 @@
 #define HASH_TABLE_TEMPLATES_HPP_
 
 #include <LinkedList.hpp>
-#include <cstdint>
 
-#include "HashTable/HashTableDefinitions.hpp"
+#include "HashTableDefinitions.hpp"
+#include "HashTableInternal.hpp"
 #include "LinkedListDefinitions.hpp"
 
 #define HashTableTemplate \
@@ -47,14 +47,27 @@ namespace HashTableLib {
         assert (newEntry);
         VerifyHashTable (table);
     
-        uint32_t listIndex = GetListIndex (table, &newEntry->key);
-        LinkedList::List <Pair <Key, Value>, ElementComparator> *list = &table->table [listIndex];
+        LinkedList::List <Pair <Key, Value>, ElementComparator> *list = HashTableInternal::GetList (table, &newEntry->key);
     
-        ssize_t newIndex = 0;
-        LinkedList::ListErrorCode insertErrorCode = LinkedList::InsertAfter (list, list->prev [0], &newIndex, newEntry);
+        return HashTableInternal::InsertValue (table, list, newEntry);
+    }
 
-        CheckError (table, insertErrorCode == LinkedList::NO_LIST_ERRORS, ErrorCode::LIST_ERROR); // insert after tail
+    HashTableTemplate
+    ErrorCode AddUniqueElement (HashTable <Key, Value, Hash, ElementComparator> *table, Pair <Key, Value> *newEntry) {
+        assert (newEntry);
+        VerifyHashTable (table);
+
+        LinkedList::List <Pair <Key, Value>, ElementComparator> *list = HashTableInternal::GetList (table, &newEntry->key);
+
+        Pair <Key, Value> searchPattern = {.key = newEntry->key};
+        ssize_t elementIndex = -1;
     
+        LinkedList::FindValue (list, &searchPattern, &elementIndex);
+
+        if (elementIndex <= 0) {
+            return HashTableInternal::InsertValue (table, list, newEntry);
+        }
+
         return ErrorCode::NO_ERRORS;
     }
     
@@ -64,8 +77,7 @@ namespace HashTableLib {
         assert (element);
         VerifyHashTable (table);
     
-        uint32_t listIndex = GetListIndex (table, elementKey);
-        LinkedList::List <Pair <Key, Value>, ElementComparator> *list = &table->table [listIndex];
+        LinkedList::List <Pair <Key, Value>, ElementComparator> *list = HashTableInternal::GetList (table, elementKey);
         
         Pair <Key, Value> searchPattern = {.key = *elementKey};
         ssize_t elementIndex = -1;
@@ -133,10 +145,7 @@ namespace HashTableLib {
         return ErrorCode::NO_ERRORS;
     }
 
-    HashTableTemplate
-    inline uint32_t GetListIndex (HashTable <Key, Value, Hash, ElementComparator> *table, Key *elementKey) {
-        return Hash (elementKey) % (uint32_t) table->capacity;
-    }
+
 
 }
 
