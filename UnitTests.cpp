@@ -5,10 +5,6 @@
 #include <gtest/gtest.h>
 
 #include "ColorConsole.h"
-#include "ErrorCode.hpp"
-#include "HashTableDefinitions.hpp"
-#include "HashTableDump.hpp"
-#include "HashTableTemplates.hpp"
 
 static const size_t DEFAULT_CAPACITY = 100;
 

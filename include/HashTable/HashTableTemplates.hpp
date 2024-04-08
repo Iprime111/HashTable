@@ -5,8 +5,6 @@
 #include <cstdint>
 
 #include "HashTable/HashTableDefinitions.hpp"
-#include "ErrorCode.hpp"
-#include "HashTable/HashTableConfig.hpp"
 #include "LinkedListDefinitions.hpp"
 
 #define HashTableTemplate \

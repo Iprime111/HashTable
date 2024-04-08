@@ -5,7 +5,6 @@
 #include <cstdio>
 
 #include "ColorConsole.h"
-#include "ErrorCode.hpp"
 #include "HashTableDefinitions.hpp"
 #include "HashTableTemplates.hpp"
 #include "LinkedListDefinitions.hpp"

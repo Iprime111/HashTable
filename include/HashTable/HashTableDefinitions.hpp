@@ -5,13 +5,22 @@
 #include <cstddef>
 #include <LinkedList.hpp>
 
-#include "ErrorCode.hpp"
 #include "LinkedListDefinitions.hpp"
 
 #define HashTableTemplate \
     template <typename Key, typename Value, HashFunction <Key *> Hash, LinkedList::Comparator <Pair <Key, Value> *> ElementComparator>
 
 namespace HashTableLib {
+
+    const size_t EXPECTED_LOAD_FACTOR = 5;
+
+    enum class ErrorCode {
+        NO_ERRORS        = 0,
+        ALLOCATION_ERROR = 1 << 0,
+        NULL_POINTER     = 1 << 1,
+        LIST_ERROR       = 1 << 2,
+    };
+ 
     template <typename Key, typename Value>
     struct Pair {
         Key   key   = {};
