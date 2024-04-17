@@ -3,6 +3,10 @@
 
 #include <LinkedList.hpp>
 
+#ifdef TRACY_ENABLE
+    #include <Tracy.hpp>
+#endif
+
 #include "HashTableDefinitions.hpp"
 #include "HashTableInternal.hpp"
 #include "LinkedListDefinitions.hpp"

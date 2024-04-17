@@ -4,6 +4,11 @@
 #include <LinkedList.hpp>
 #include <cstdint>
 
+#ifdef TRACY_ENABLE
+    #include <Tracy.hpp>
+#endif
+
+
 #include "HashTableDefinitions.hpp"
 #include "LinkedListDefinitions.hpp"
 
