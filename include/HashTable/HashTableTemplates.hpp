@@ -7,6 +7,10 @@
 #include "HashTableInternal.hpp"
 #include "LinkedListDefinitions.hpp"
 
+#ifndef TRACY_ENABLE
+    #define ZoneScoped 
+#endif
+
 #define HashTableTemplate \
     template <typename Key, typename Value, HashFunction <Key *> Hash, LinkedList::Comparator <Pair <Key, Value> *> ElementComparator>
 
@@ -44,6 +48,7 @@ namespace HashTableLib {
 
     HashTableTemplate
     ErrorCode AddElement (HashTable <Key, Value, Hash, ElementComparator> *table, Pair <Key, Value> *newEntry) {
+        ZoneScoped;
         assert (newEntry);
         VerifyHashTable (table);
     
@@ -54,6 +59,7 @@ namespace HashTableLib {
 
     HashTableTemplate
     ErrorCode AddUniqueElement (HashTable <Key, Value, Hash, ElementComparator> *table, Pair <Key, Value> *newEntry) {
+        ZoneScoped;
         assert (newEntry);
         VerifyHashTable (table);
 
@@ -73,6 +79,7 @@ namespace HashTableLib {
     
     HashTableTemplate
     ErrorCode FindElement (HashTable <Key, Value, Hash, ElementComparator> *table, Key *elementKey, Value **element) {
+        ZoneScoped;
         assert (elementKey);
         assert (element);
         VerifyHashTable (table);
@@ -95,6 +102,7 @@ namespace HashTableLib {
     
     HashTableTemplate
     ErrorCode HashTableVerifier (HashTable <Key, Value, Hash, ElementComparator> *table) {
+        ZoneScoped;
         if (!table)
             return ErrorCode::NULL_POINTER;
     
@@ -109,6 +117,7 @@ namespace HashTableLib {
     
     HashTableTemplate
     ErrorCode InitHashTable (HashTable <Key, Value, Hash, ElementComparator> *table, size_t capacity) {
+        ZoneScoped;
         assert (table);
     
         table->capacity = capacity;
@@ -131,6 +140,8 @@ namespace HashTableLib {
     
     HashTableTemplate
     ErrorCode DestroyHashTable (HashTable <Key, Value, Hash, ElementComparator> *table) {
+        ZoneScoped;
+
         if (!table)
             return ErrorCode::NULL_POINTER;
     
@@ -148,6 +159,10 @@ namespace HashTableLib {
 
 
 }
+
+#ifndef TRACY_ENABLE
+    #undef ZoneScoped
+#endif
 
 #undef HashTableTemplate
 #undef WriteError
